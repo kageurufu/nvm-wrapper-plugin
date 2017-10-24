@@ -17,18 +17,23 @@ apply plugin: 'org.jenkins-ci.jpi'
 
 group = 'org.jenkins-ci.plugins'
 version = '0.1.4'
-description = 'NVM wrapper plugin'
-archivesBaseName = 'nvm-wrapper'
+description = 'Pyenv wrapper plugin'
+archivesBaseName = 'pyenv-wrapper'
 
 sourceCompatibility = '1.8'
 
 jenkinsPlugin {
   coreVersion = '1.609.3'
-  displayName = 'nvm wrapper'
-  shortName = 'nvm-wrapper'
-  url = 'https://wiki.jenkins-ci.org/display/JENKINS/Nvm+Wrapper+Plugin'
-  gitHubUrl = 'https://github.com/gextech/jenkins-nvm-plugin'
+  displayName = 'pyenv wrapper'
+  shortName = 'pyenv-wrapper'
+  url = 'https://wiki.jenkins-ci.org/display/JENKINS/Pyenv+Wrapper+Plugin'
+  gitHubUrl = 'https://github.com/kageurufu/pyenv-wrapper-plugin'
   developers {
+    developer {
+      id 'kageurufu'
+      name 'Franklyn Tackitt'
+      email 'pyenv-wrapper-plugin@kageurufu.net'
+    }
     developer {
       id 'atoms'
       name 'Tomas Salazar'

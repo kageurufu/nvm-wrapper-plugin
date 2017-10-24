@@ -1,4 +1,4 @@
-package org.jenkinsci.plugins.nvm;
+package org.jenkinsci.plugins.pyenv;
 
 import hudson.AbortException;
 import hudson.FilePath;
@@ -12,35 +12,29 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class NvmWrapperUtil {
+public class PyenvWrapperUtil {
 
   private FilePath workspace;
   private Launcher launcher;
   private TaskListener listener;
 
-  private static final List<String> NVM_PATHS = Arrays.asList(
-    "~/.nvm/nvm.sh",
-    "/usr/local/nvm/nvm.sh"
+  private static final List<String> PYENV_PATHS = Arrays.asList(
+    "~/.pyenv/bin/pyenv"
   );
 
-  NvmWrapperUtil(final FilePath workspace, Launcher launcher, TaskListener listener) {
+  PyenvWrapperUtil(final FilePath workspace, Launcher launcher, TaskListener listener) {
     this.workspace = workspace;
     this.listener = listener;
     this.launcher = launcher;
   }
 
-  public Map<String, String> getNpmEnvVars(String version, String nvmInstallURL,
-                                           String nvmNodeJsOrgMirror, String nvmIoJsOrgMirror)
+  public Map<String, String> getPyenvEnvVars(String version, String pyenvInstallURL)
     throws IOException, InterruptedException {
 
-    int statusCode = installNvm(Optional.ofNullable(nvmInstallURL).orElse(NvmDefaults.nvmInstallURL));
+    int statusCode = installPyenv(Optional.ofNullable(pyenvInstallURL).orElse(PyenvDefaults.pyenvInstallURL));
     if (statusCode != 0) {
-      throw new AbortException("Failed to install NVM");
+      throw new AbortException("Failed to install Pyenv");
     }
-
-    String mirrorBin = version.contains("iojs") ?
-      "NVM_IOJS_ORG_MIRROR=" + Optional.ofNullable(nvmIoJsOrgMirror).orElse(NvmDefaults.nvmIoJsOrgMirror) :
-      "NVM_NODEJS_ORG_MIRROR=" + Optional.ofNullable(nvmNodeJsOrgMirror).orElse(NvmDefaults.nvmNodeJsOrgMirror);
 
     ArgumentListBuilder beforeCmd = new ArgumentListBuilder();
     beforeCmd.add("bash");
@@ -49,18 +43,18 @@ public class NvmWrapperUtil {
 
     Map<String, String> beforeEnv = toMap(getExport(beforeCmd, "before.env"));
 
-    ArgumentListBuilder nvmSourceCmd = new ArgumentListBuilder();
-    nvmSourceCmd.add("bash");
-    nvmSourceCmd.add("-c");
-    nvmSourceCmd.add(
-        NVM_PATHS.stream().map(
-          path -> "{ [ -f " + path + " ] && source " + path + "; }")
+    ArgumentListBuilder pyenvSourceCmd = new ArgumentListBuilder();
+    pyenvSourceCmd.add("bash");
+    pyenvSourceCmd.add("-c");
+    pyenvSourceCmd.add(
+        PYENV_PATHS.stream().map(
+          path -> "{ [ -f " + path + " ] && eval \"$(" + path + " init - )\"; }")
           .collect(Collectors.joining(" || ")) +
-        " && " + mirrorBin + " nvm install " + version +
-        " && nvm use " + version +
-        " && export > nvm.env");
+        " && " + " pyenv install " + version +
+        " && export PYENV_VERSION=" + version +
+        " && export > pyenv.env");
 
-    Map<String, String> afterEnv = toMap(getExport(nvmSourceCmd, "nvm.env"));
+    Map<String, String> afterEnv = toMap(getExport(pyenvSourceCmd, "pyenv.env"));
 
     Map<String, String> newEnvVars = new HashMap<>();
 
@@ -70,10 +64,10 @@ public class NvmWrapperUtil {
 
         if (k.equals("PATH")) {
           String path = Arrays.stream(v.split(File.pathSeparator))
-            .filter(it -> it.matches(".*\\.nvm.*"))
+            .filter(it -> it.matches(".*\\.pyenv.*"))
             .collect(Collectors.joining(File.pathSeparator));
           newEnvVars.put("PATH", afterEnv.get("PATH"));
-          newEnvVars.put("PATH+NVM", path);
+          newEnvVars.put("PATH+PYENV", path);
         } else {
           newEnvVars.put(k, v);
         }
@@ -98,10 +92,10 @@ public class NvmWrapperUtil {
 
   }
 
-  private Integer installNvm(String nvmInstallURL) throws IOException, InterruptedException {
-    listener.getLogger().println("Installing nvm\n");
-    FilePath installer = workspace.child("nvm-installer");
-    installer.copyFrom(new URL(nvmInstallURL));
+  private Integer installPyenv(String pyenvInstallURL) throws IOException, InterruptedException {
+    listener.getLogger().println("Installing pyenv\n");
+    FilePath installer = workspace.child("pyenv-installer");
+    installer.copyFrom(new URL(pyenvInstallURL));
     installer.chmod(0755);
     ArgumentListBuilder args = new ArgumentListBuilder();
 
@@ -110,7 +104,6 @@ public class NvmWrapperUtil {
     return launcher.launch().cmds(args).pwd(workspace)
       .stdout(listener.getLogger())
       .stderr(listener.getLogger()).join();
-
   }
 
   private Map<String, String> toMap(String export) {
@@ -125,5 +118,4 @@ public class NvmWrapperUtil {
     });
     return r;
   }
-
 }

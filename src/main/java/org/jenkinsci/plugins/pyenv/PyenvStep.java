@@ -1,4 +1,4 @@
-package org.jenkinsci.plugins.nvm;
+package org.jenkinsci.plugins.pyenv;
 
 import com.google.common.collect.ImmutableSet;
 import hudson.EnvVars;
@@ -19,40 +19,28 @@ import java.util.Map;
 import java.util.Set;
 
 
-public class NvmStep extends Step {
+public class PyenvStep extends Step {
 
   private String version;
-  private String nvmInstallURL;
-  private String nvmNodeJsOrgMirror;
-  private String nvmIoJsOrgMirror;
+  private String pyenvInstallURL;
 
   @DataBoundConstructor
-  public NvmStep(final String version,final String nvmInstallURL,final String nvmNodeJsOrgMirror,final String nvmIoJsOrgMirror) {
+  public PyenvStep(final String version, final String pyenvInstallURL) {
     this.version = version;
-    this.nvmInstallURL = StringUtils.isNotBlank(nvmInstallURL) ? nvmInstallURL : NvmDefaults.nvmInstallURL;
-    this.nvmNodeJsOrgMirror = StringUtils.isNotBlank(nvmNodeJsOrgMirror) ? nvmNodeJsOrgMirror : NvmDefaults.nvmNodeJsOrgMirror;
-    this.nvmIoJsOrgMirror = StringUtils.isNotBlank(nvmIoJsOrgMirror) ? nvmIoJsOrgMirror : NvmDefaults.nvmIoJsOrgMirror;
+    this.pyenvInstallURL = StringUtils.isNotBlank(pyenvInstallURL) ? pyenvInstallURL : PyenvDefaults.pyenvInstallURL;
   }
 
   public String getVersion() {
     return version;
   }
 
-  public String getNvmInstallURL() {
-    return nvmInstallURL;
-  }
-
-  public String getNvmNodeJsOrgMirror() {
-    return nvmNodeJsOrgMirror;
-  }
-
-  public String getNvmIoJsOrgMirror() {
-    return nvmIoJsOrgMirror;
+  public String getPyenvInstallURL() {
+    return pyenvInstallURL;
   }
 
   @Override
   public StepExecution start(final StepContext context) throws Exception {
-    return new Execution(this.version, this.nvmInstallURL, this.nvmNodeJsOrgMirror, this.nvmIoJsOrgMirror, context);
+    return new Execution(this.version, this.pyenvInstallURL, context);
   }
 
   @Extension
@@ -60,12 +48,12 @@ public class NvmStep extends Step {
 
     @Override
     public String getFunctionName() {
-      return "nvm";
+      return "pyenv";
     }
 
     @Override
     public String getDisplayName() {
-      return "Setup the environment for an NVM installation.";
+      return "Setup the environment for an Pyenv installation.";
     }
 
     @Override
@@ -80,11 +68,9 @@ public class NvmStep extends Step {
     @Override
     public Step newInstance(StaplerRequest req, JSONObject formData) throws FormException {
       final String versionFromFormData = formData.getString("version");
-      final String nvmInstallURLFromFormData = formData.getString("nvmInstallURL");
-      final String nvmNodeJsOrgMirrorFromFormData = formData.getString("nvmNodeJsOrgMirror");
-      final String nvmIoJsOrgMirrorFromFormData = formData.getString("nvmIoJsOrgMirror");
+      final String pyenvInstallURLFromFormData = formData.getString("pyenvInstallURL");
 
-      return new NvmStep(versionFromFormData, nvmInstallURLFromFormData, nvmNodeJsOrgMirrorFromFormData, nvmIoJsOrgMirrorFromFormData);
+      return new PyenvStep(versionFromFormData, pyenvInstallURLFromFormData);
     }
 
     @Override
@@ -99,17 +85,13 @@ public class NvmStep extends Step {
     private static final long serialVersionUID = 1;
 
     private final transient String version;
-    private final transient  String nvmInstallURL;
-    private final transient  String nvmNodeJsOrgMirror;
-    private final transient  String nvmIoJsOrgMirror;
+    private final transient String pyenvInstallURL;
 
-    public Execution(final String version,final String nvmInstallURL,
-                     final String nvmNodeJsOrgMirror,final String nvmIoJsOrgMirror, @Nonnull final StepContext context) {
+    public Execution(final String version, final String pyenvInstallURL,
+                     @Nonnull final StepContext context) {
       super(context);
       this.version = version;
-      this.nvmInstallURL = nvmInstallURL;
-      this.nvmNodeJsOrgMirror = nvmNodeJsOrgMirror;
-      this.nvmIoJsOrgMirror = nvmIoJsOrgMirror;
+      this.pyenvInstallURL = pyenvInstallURL;
     }
 
     @Override
@@ -117,11 +99,11 @@ public class NvmStep extends Step {
       final FilePath workspace = this.getContext().get(FilePath.class);
       final Launcher launcher = this.getContext().get(Launcher.class);
 
-      final NvmWrapperUtil wrapperUtil = new NvmWrapperUtil(workspace, launcher, launcher.getListener());
-      final Map<String, String> npmEnvVars = wrapperUtil.getNpmEnvVars(this.version, this.nvmInstallURL, this.nvmNodeJsOrgMirror, this.nvmIoJsOrgMirror);
+      final PyenvWrapperUtil wrapperUtil = new PyenvWrapperUtil(workspace, launcher, launcher.getListener());
+      final Map<String, String> pyenvEnvVars = wrapperUtil.getPyenvEnvVars(this.version, this.pyenvInstallURL);
 
       getContext().newBodyInvoker()
-        .withContext(EnvironmentExpander.merge(getContext().get(EnvironmentExpander.class), new ExpanderImpl(npmEnvVars)))
+        .withContext(EnvironmentExpander.merge(getContext().get(EnvironmentExpander.class), new ExpanderImpl(pyenvEnvVars)))
         .withCallback(BodyExecutionCallback.wrap(getContext()))
         .start();
 

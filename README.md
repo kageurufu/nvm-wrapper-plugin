@@ -1,12 +1,12 @@
-# [Jenkins nvm Plugin (nvm-wrapper)](https://wiki.jenkins-ci.org/display/JENKINS/Nvm+Wrapper+Plugin)
+# [Jenkins pyenv Plugin (pyenv-wrapper)](https://wiki.jenkins-ci.org/display/JENKINS/pyenv+Wrapper+Plugin)
 
-[![Build Status](https://img.shields.io/travis/tacoss/jenkins-nvm-plugin/master.svg?style=flat)](https://travis-ci.org/tacoss/jenkins-nvm-plugin)
+[![Build Status](https://img.shields.io/travis/tacoss/jenkins-pyenv-plugin/master.svg?style=flat)](https://travis-ci.org/tacoss/jenkins-pyenv-plugin)
 
-A java/groovy version of [Jenkins nvm plugin](https://github.com/codevise/jenkins-nvm-plugin), it
-doesn't require `ruby-runtime` to be installed.
+A java/groovy based replacement for the existing pyenv plugins, removing the need
+ for special `pysh` directives and allowing simpler integration into your jobs.
 
 ## Usage
-- Please follow this [steps](https://wiki.jenkins-ci.org/display/JENKINS/Nvm+Wrapper+Plugin)
+- Please follow this [steps](https://wiki.jenkins-ci.org/display/JENKINS/Pyenv+Wrapper+Plugin)
 
 ## Build
 - It was built using gradle 2.3 and Java 1.8
@@ -21,19 +21,22 @@ doesn't require `ruby-runtime` to be installed.
 
 ## Features
 
-- Installs `nvm.sh`
-- Installs node version configured for job.
-- Amends build environment to use configured node version.
+- Installs `pyenv`
+- Installs python version configured for job.
+- Amends build environment to use configured python version.
 
 ## Acknowledgements
 
 Based on :
 
-[Jenkins rvm plugin](https://github.com/jenkinsci/rvm-plugin) and
-[Jenkins nvm plugin](https://github.com/codevise/jenkins-nvm-plugin).
+[Jenkins rvm plugin](https://github.com/jenkinsci/rvm-plugin),
+[Jenkins pyenv plugin](https://github.com/codevise/jenkins-pyenv-plugin), and
+[Jenkins nvm wrapper plugin](https://github.com/jenkinsci/nvm-wrapper-plugin)
 
 ## License
 
-Copyright (c) 2017 Tomas Salazar. This software is licensed under the MIT License.
+Copyright (c) 2017 Franklyn Tackitt. This software is licensed under the MIT License.
+
+Derived from code Copyright (c) 2017 Tomas Salazar, also licensed under the MIT License.
 
 Please fork and improve.
