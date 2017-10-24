@@ -16,7 +16,7 @@ buildscript {
 apply plugin: 'org.jenkins-ci.jpi'
 
 group = 'org.jenkins-ci.plugins'
-version = '0.1.4'
+version = '0.1.5'
 description = 'Pyenv wrapper plugin'
 archivesBaseName = 'pyenv-wrapper'
 
@@ -33,11 +33,6 @@ jenkinsPlugin {
       id 'kageurufu'
       name 'Franklyn Tackitt'
       email 'pyenv-wrapper-plugin@kageurufu.net'
-    }
-    developer {
-      id 'atoms'
-      name 'Tomas Salazar'
-      email 'atomsmail+jenkins@gmail.com'
     }
   }
 }

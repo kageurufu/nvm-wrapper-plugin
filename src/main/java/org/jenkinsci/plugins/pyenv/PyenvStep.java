@@ -11,6 +11,7 @@ import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.workflow.steps.*;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest;
 
 import javax.annotation.Nonnull;
@@ -20,18 +21,22 @@ import java.util.Set;
 
 
 public class PyenvStep extends Step {
-
-  private String version;
+  private final @Nonnull String version;
   private String pyenvInstallURL;
 
   @DataBoundConstructor
-  public PyenvStep(final String version, final String pyenvInstallURL) {
+  public PyenvStep(final String version) {
     this.version = version;
-    this.pyenvInstallURL = StringUtils.isNotBlank(pyenvInstallURL) ? pyenvInstallURL : PyenvDefaults.pyenvInstallURL;
+    this.pyenvInstallURL = PyenvDefaults.pyenvInstallURL;
   }
 
   public String getVersion() {
     return version;
+  }
+
+  @DataBoundSetter
+  public void setPyenvInstallURL(String pyenvInstallURL) {
+    this.pyenvInstallURL = pyenvInstallURL;
   }
 
   public String getPyenvInstallURL() {
@@ -70,7 +75,13 @@ public class PyenvStep extends Step {
       final String versionFromFormData = formData.getString("version");
       final String pyenvInstallURLFromFormData = formData.getString("pyenvInstallURL");
 
-      return new PyenvStep(versionFromFormData, pyenvInstallURLFromFormData);
+      PyenvStep pyenvStep = new PyenvStep(versionFromFormData);
+
+      if (StringUtils.isNotBlank(pyenvInstallURLFromFormData)) {
+        pyenvStep.setPyenvInstallURL(pyenvInstallURLFromFormData);
+      }
+
+      return pyenvStep;
     }
 
     @Override
