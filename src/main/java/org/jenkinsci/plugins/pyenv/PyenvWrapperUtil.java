@@ -19,7 +19,8 @@ public class PyenvWrapperUtil {
   private TaskListener listener;
 
   private static final List<String> PYENV_PATHS = Arrays.asList(
-    "~/.pyenv/bin/pyenv"
+    "~/tools/pyenv/bin",
+    "~/.pyenv/bin"
   );
 
   PyenvWrapperUtil(final FilePath workspace, Launcher launcher, TaskListener listener) {
@@ -48,9 +49,13 @@ public class PyenvWrapperUtil {
     pyenvSourceCmd.add("-c");
     pyenvSourceCmd.add(
         PYENV_PATHS.stream().map(
-          path -> "{ [ -f " + path + " ] && eval \"$(" + path + " init - )\"; }")
+          path -> "{ " +
+            "[ -d " + path + " ] && " +
+            "export PATH=" + path + ":$PATH && "+
+            "eval \"$(" + path + "/pyenv init - )\"; "+
+            "}")
           .collect(Collectors.joining(" || ")) +
-        " && " + " pyenv install " + version +
+        " && " + " pyenv install -s " + version +
         " && export PYENV_VERSION=" + version +
         " && export > pyenv.env");
 

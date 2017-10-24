@@ -1,12 +1,21 @@
 sudo: false
 cache:
   directories:
-  - $HOME/.gradle
+  - "$HOME/.gradle"
 language: java
 jdk:
-  - oraclejdk8
+- oraclejdk8
 before_install:
- - chmod +x gradlew
+- chmod +x gradlew
 env:
-  - TERM=dumb
-script: ./gradlew jpi
+- TERM=dumb
+script: "./gradlew jpi"
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: lUCJnka0pVxJ6Tk+mBi+lsAuXecoQHnzqVbMCUP8MM5DfILwvbzhrfwdmo5K5dyxS0CA9qWIRJuPB4nw9cQVAjpiPGnuD38dMgQV4+bQdXOOqTl5e+TnnXXrM6JZRsrspwySeenemneUs4lPgmUlSW5dGCea4VWUbX2EEZciofgM4i4NvexQfWiPy+bn9OVEJ/riDImqIKNVeNHJ4conKklJdKbfYg+wj10EG03bvF8eY04+29qXeeR5vyUYStncjYaghkvFWDKMfeuxgIk3HGFMs3Nb2PjutUiVzq7aSM3Zlw1vT/TJzp3rs2ITXdlrpQ3UJOG6sTOuQYbIWjSlJkDm/T9H+Lr68tT50RE6N9DDwh41O3BR5OrvqSP9DxKQxxyBqRh0fkz6NFQZvuQMun3MQkEGM2wOOWB9uobokP0a9rg/Pr44HeiNyR23Gpq6vNOTnW1nJ75KR2e7M22ZhGP2pWkbHJHI6WlpecQxxTh1phQOMRU3pqZLmB265JxVYUzpycsPrG/itKp8QZgQr96GoDP8wi1DAqpk75a8TrBIJqHNacR9/+QeeRjhGF9iqHtVbE+hbsJ89G0gOtHxmovANjhhvnJHQaErIJZXEh7ETtjudcQxDelvtcyTevkiQcKv+dRwd1GiF3Loz/kckG85EcDrlUlC5r35Juh4KjQ=
+  file: build/libs/pyenv-wrapper.hpi
+  on:
+    repo: kageurufu/pyenv-wrapper-plugin
+    tags: true
