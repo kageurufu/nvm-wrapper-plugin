@@ -1,6 +1,6 @@
 # [Jenkins pyenv Plugin (pyenv-wrapper)](https://wiki.jenkins-ci.org/display/JENKINS/pyenv+Wrapper+Plugin)
 
-[![Build Status](https://img.shields.io/travis/tacoss/jenkins-pyenv-plugin/master.svg?style=flat)](https://travis-ci.org/tacoss/jenkins-pyenv-plugin)
+[![Build Status](https://img.shields.io/travis/kageurufu/pyenv-wrapper-plugin/master.svg?style=flat)](https://travis-ci.org/kageurufu/pyenv-wrapper-plugin)
 
 A java/groovy based replacement for the existing pyenv plugins, removing the need
  for special `pysh` directives and allowing simpler integration into your jobs.
