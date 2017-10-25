@@ -41,7 +41,7 @@ import java.util.logging.Logger;
   @Override
   public BuildWrapper.Environment setUp(AbstractBuild build, Launcher launcher,final BuildListener listener)
     throws IOException, InterruptedException {
-    this.wrapperUtil = new PyenvWrapperUtil(build.getWorkspace(), launcher, listener);
+    this.wrapperUtil = new PyenvWrapperUtil(build.getWorkspace(), build.getParent().getName(), launcher, listener);
     final Map<String, String> pyenvEnvVars = this.wrapperUtil
       .getPyenvEnvVars(this.version, this.pyenvInstallURL);
 

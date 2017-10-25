@@ -6,6 +6,7 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.BuildListener;
+import hudson.model.Run;
 import hudson.model.TaskListener;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
@@ -109,8 +110,9 @@ public class PyenvStep extends Step {
     public boolean start() throws Exception {
       final FilePath workspace = this.getContext().get(FilePath.class);
       final Launcher launcher = this.getContext().get(Launcher.class);
+      final String name = this.getContext().get(Run.class).getParent().getName();
 
-      final PyenvWrapperUtil wrapperUtil = new PyenvWrapperUtil(workspace, launcher, launcher.getListener());
+      final PyenvWrapperUtil wrapperUtil = new PyenvWrapperUtil(workspace, name, launcher, launcher.getListener());
       final Map<String, String> pyenvEnvVars = wrapperUtil.getPyenvEnvVars(this.version, this.pyenvInstallURL);
 
       getContext().newBodyInvoker()

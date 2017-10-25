@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class PyenvWrapperUtil {
 
   private FilePath workspace;
+  private String name;
   private Launcher launcher;
   private TaskListener listener;
 
@@ -23,10 +24,30 @@ public class PyenvWrapperUtil {
     "~/.pyenv/bin"
   );
 
-  PyenvWrapperUtil(final FilePath workspace, Launcher launcher, TaskListener listener) {
+  PyenvWrapperUtil(final FilePath workspace, final String name, Launcher launcher, TaskListener listener) {
     this.workspace = workspace;
+    this.name = name;
     this.listener = listener;
     this.launcher = launcher;
+  }
+
+  private String getBashScript(String version) {
+      return PYENV_PATHS.stream().map(path -> "{ \n" +
+          "  [ -d " + path + " ] && \n" +
+          "  export PATH=" + path + ":$PATH && \n"+
+          "  eval \"$(" + path + "/pyenv init - )\"; \n"+
+          "}")
+      .collect(Collectors.joining(" || "))
+      + " && {\n"
+      + "  pyenv versions --skip-aliases | grep -q \"" + version + "\" \\\n"
+      + "  || pyenv install -s \"" + version + "\"; \n"
+      + "} && {\n"
+      + "  pyenv versions --skip-aliases | grep -q \"" + name + "-" + version + "\" \\\n"
+      + "  || pyenv virtualenv " + version + " \"" + name + "-" + version + "\";\n"
+      + "} \\\n"
+      + "&& export PYENV_VERSION=\"" + name + "-" + version + "\" \\\n"
+      + "&& export > pyenv.env"
+      ;
   }
 
   public Map<String, String> getPyenvEnvVars(String version, String pyenvInstallURL)
@@ -47,17 +68,7 @@ public class PyenvWrapperUtil {
     ArgumentListBuilder pyenvSourceCmd = new ArgumentListBuilder();
     pyenvSourceCmd.add("bash");
     pyenvSourceCmd.add("-c");
-    pyenvSourceCmd.add(
-        PYENV_PATHS.stream().map(
-          path -> "{ " +
-            "[ -d " + path + " ] && " +
-            "export PATH=" + path + ":$PATH && "+
-            "eval \"$(" + path + "/pyenv init - )\"; "+
-            "}")
-          .collect(Collectors.joining(" || ")) +
-        " && " + " pyenv install -s " + version +
-        " && export PYENV_VERSION=" + version +
-        " && export > pyenv.env");
+    pyenvSourceCmd.add(getBashScript(version));
 
     Map<String, String> afterEnv = toMap(getExport(pyenvSourceCmd, "pyenv.env"));
 
